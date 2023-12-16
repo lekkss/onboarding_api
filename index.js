@@ -26,7 +26,7 @@ app.use(express.json());
 //Routes
 app.use("/api/auth", authRouter);
 app.use("/api/kyc", auth, kycRouter);
-app.use("/api/document", documentRouter);
+app.use("/api/document-types", documentRouter);
 
 // initializing express middlewares
 app.use(notFound);

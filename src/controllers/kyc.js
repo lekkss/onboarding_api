@@ -1,12 +1,14 @@
 import { db } from "../models/index.js";
 import { findUserById } from "./auth.js";
 import BadRequestError from "../errors/bad-request.js";
+import { findDocumentById } from "./document.js";
 const { User, Kyc } = db.models;
 
 const completeKyc = async (req, res) => {
   const userData = req.body;
   const id = req.user.id;
   const user = await findUserById(id);
+  await findDocumentById(req.body.document_type_id);
   const requiredFields = [
     "firstname",
     "middlename",
@@ -22,6 +24,7 @@ const completeKyc = async (req, res) => {
     "document_number",
   ];
   const missingFields = requiredFields.filter((field) => !userData[field]);
+
   if (missingFields.length > 0) {
     throw new BadRequestError(
       `Missing required fields: ${missingFields.join(", ")}`
