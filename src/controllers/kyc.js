@@ -45,9 +45,10 @@ const completeKyc = async (req, res) => {
 
   if (!user.dataValues.has_kyc) {
     await Kyc.create({
-      userData,
+      ...userData,
       created_at: Date.now(),
       has_kyc: true,
+      user_id: id,
     });
 
     Object.assign(user, userData, {

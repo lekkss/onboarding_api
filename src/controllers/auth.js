@@ -38,18 +38,39 @@ const login = async (req, res) => {
 
 const initializeSignup = async (req, res) => {
   const { phone } = req.body;
-
+  const user = await User.findOne({ where: { phone: phone } });
   if (req.body) {
-    if (await User.findOne({ where: { phone: phone } })) {
-      res.json({
-        status: false,
-        message: "Phonenumber already in use",
-      });
+    if (user) {
+      const {
+        created_at,
+        uuid,
+        phone: userphone,
+        country_code,
+        updated_at,
+      } = user.dataValues;
+      if (updated_at !== null) {
+        res.status(StatusCodes.CREATED).json({
+          status: false,
+          message: "Phone number verified, Proceed to complete signup",
+          data: { step: "completed", uuid: uuid },
+        });
+      } else if (created_at !== null) {
+        res.status(StatusCodes.CREATED).json({
+          status: false,
+          message: "Signup Initialized, Proceed to verify phone number",
+          data: {
+            step: "verify",
+            phone: userphone,
+            country_code: country_code,
+          },
+        });
+      }
     } else {
-      await User.create(req.body);
+      const otp = generateOtp();
+      await User.create({ ...req.body, otp: otp, created_at: Date.now() });
       res.status(StatusCodes.CREATED).json({
         status: true,
-        data: { otp: "1234" },
+        data: { otp: otp },
         message: "Signup initialized successfully",
       });
     }
@@ -61,17 +82,19 @@ const initializeSignup = async (req, res) => {
 const verifySignup = async (req, res) => {
   const { phone, otp } = req.body;
   const user = await findUserByPhone(phone);
-  const { created_at, uuid } = user.dataValues;
-  if (created_at !== null) {
+  const { otp: userOtp, updated_at, uuid } = user.dataValues;
+  console.log(userOtp, otp);
+
+  if (updated_at !== null) {
     res.status(StatusCodes.CREATED).json({
       status: false,
-      message: "Phone number verified, Proceed to complete signup",
+      message: "phone number already verified, proceed to signup",
       data: { step: "completed", uuid: uuid },
     });
   }
-  if (otp === "1234") {
+  if (otp === userOtp) {
     Object.assign(user, {
-      created_at: Date.now(),
+      updated_at: Date.now(),
     });
     await user.save();
     res.status(StatusCodes.CREATED).json({
@@ -115,12 +138,35 @@ const completeSignup = async (req, res) => {
   }
 };
 
+const resendOtp = async (req, res) => {
+  const { phone } = req.body;
+  const user = await findUserByPhone(phone);
+  const otp = generateOtp();
+  Object.assign(user, {
+    otp: otp,
+    updated_at: Date.now(),
+  });
+  await user.save();
+  res.status(StatusCodes.CREATED).json({
+    status: true,
+    data: { otp: otp },
+    message: "OTP sent successfully",
+  });
+};
+
 function omitPassword(user) {
   const { password, ...userWithoutHash } = user;
   return userWithoutHash;
 }
 
 //helper to find user with id
+
+//generate random otp
+function generateOtp() {
+  const min = 1000;
+  const max = 9999;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 async function findUserByPhone(phone) {
   const user = await User.findOne({ where: { phone: phone } });
   if (!user) throw new BadRequestError(`User does not exist`);
@@ -139,4 +185,4 @@ export async function findUserById(id) {
   return user;
 }
 
-export { login, initializeSignup, verifySignup, completeSignup };
+export { login, initializeSignup, verifySignup, completeSignup, resendOtp };

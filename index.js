@@ -16,6 +16,7 @@ import auth from "./src/middlewares/auth.js";
 import authRouter from "./src/routes/auth.js";
 import kycRouter from "./src/routes/kyc.js";
 import documentRouter from "./src/routes/document.js";
+import profileRouter from "./src/routes/profile.js";
 
 //parse url encoded bodies
 app.use(cors());
@@ -25,6 +26,7 @@ app.use(express.json());
 
 //Routes
 app.use("/api/auth", authRouter);
+app.use("/api/profile", auth, profileRouter);
 app.use("/api/kyc", auth, kycRouter);
 app.use("/api/document-types", documentRouter);
 

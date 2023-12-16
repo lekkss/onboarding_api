@@ -31,6 +31,9 @@ export default (sequelize, DataTypes) => {
       country_code: {
         type: DataTypes.STRING,
       },
+      otp: {
+        type: DataTypes.INTEGER,
+      },
       type: {
         type: DataTypes.ENUM("personal", "business"),
       },
