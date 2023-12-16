@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       dob: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
       },
       bvn: {
         type: DataTypes.INTEGER,

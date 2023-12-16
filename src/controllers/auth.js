@@ -16,7 +16,6 @@ const login = async (req, res) => {
       status: false,
       message: `Email does not exist`,
     });
-  } else if (await findUserByPhone(phone)) {
   } else {
     const user = await User.scope("withPassword").findOne({
       where: { email },
@@ -32,7 +31,6 @@ const login = async (req, res) => {
         role: "user",
         user: { ...omitPassword(user.get()) },
         token: token,
-        id,
       },
     });
   }
@@ -40,19 +38,21 @@ const login = async (req, res) => {
 
 const initializeSignup = async (req, res) => {
   const { phone } = req.body;
-  if (await findUserByPhone(phone)) {
-    res.json({
-      status: false,
-      message: "Phonenumber already in use",
-    });
-  }
+
   if (req.body) {
-    await User.create(req.body);
-    res.status(StatusCodes.CREATED).json({
-      status: true,
-      data: { otp: "1234" },
-      message: "Signup initialized successfully",
-    });
+    if (await User.findOne({ where: { phone: phone } })) {
+      res.json({
+        status: false,
+        message: "Phonenumber already in use",
+      });
+    } else {
+      await User.create(req.body);
+      res.status(StatusCodes.CREATED).json({
+        status: true,
+        data: { otp: "1234" },
+        message: "Signup initialized successfully",
+      });
+    }
   } else {
     throw new BadRequestError("Please provide phonenumber and countrycode");
   }
@@ -61,8 +61,8 @@ const initializeSignup = async (req, res) => {
 const verifySignup = async (req, res) => {
   const { phone, otp } = req.body;
   const user = await findUserByPhone(phone);
-  const { phone_verified_at, uuid } = user.dataValues;
-  if (phone_verified_at !== null) {
+  const { created_at, uuid } = user.dataValues;
+  if (created_at !== null) {
     res.status(StatusCodes.CREATED).json({
       status: false,
       message: "Phone number verified, Proceed to complete signup",
@@ -71,7 +71,7 @@ const verifySignup = async (req, res) => {
   }
   if (otp === "1234") {
     Object.assign(user, {
-      phone_verified_at: Date.now(),
+      created_at: Date.now(),
     });
     await user.save();
     res.status(StatusCodes.CREATED).json({
@@ -84,7 +84,7 @@ const verifySignup = async (req, res) => {
 };
 
 const completeSignup = async (req, res) => {
-  const { email, password, password_confirmation } = req.body;
+  const { email, password, password_confirmation, type } = req.body;
   const { uuid } = req.params;
   const user = await findUserByUuid(uuid);
   if (await User.findOne({ where: { email: email } })) {
@@ -97,7 +97,8 @@ const completeSignup = async (req, res) => {
     Object.assign(user, {
       password: hashedPassword,
       email: email,
-      email_verified_at: Date.now(),
+      type: type,
+      updated_at: Date.now(),
     });
     await user.save();
     res.status(StatusCodes.CREATED).json({
@@ -126,8 +127,14 @@ async function findUserByPhone(phone) {
   return user;
 }
 
-async function findUserByUuid(uuid) {
+export async function findUserByUuid(uuid) {
   const user = await User.findOne({ where: { uuid: uuid } });
+  if (!user) throw new BadRequestError(`User does not exist`);
+  return user;
+}
+
+export async function findUserById(id) {
+  const user = await User.findOne({ where: { id: id } });
   if (!user) throw new BadRequestError(`User does not exist`);
   return user;
 }

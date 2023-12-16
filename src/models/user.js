@@ -35,7 +35,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.ENUM("personal", "business"),
       },
       dob: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
       },
       country: {
         type: DataTypes.STRING,
@@ -85,7 +85,6 @@ export default (sequelize, DataTypes) => {
       },
       created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
       },
       updated_at: {
         type: DataTypes.DATE,
