@@ -21,7 +21,7 @@ Bank Onboarding API is designed to streamline user onboarding processes. It simp
 - **User Verification:** Verify users using their phone numbers and receive OTP codes for authentication.
 - **KYC Process:** Initiate a KYC process for users to provide necessary identification details.
 - **Automatic Profile Creation:** Upon completion of the KYC process, user profiles are automatically created.
-- **Automatic Bank Account Creation:** A bank account is automatically generated for each user with a unique account number.
+- **Automatic Bank Account Creation:** A bank account is automatically generated for each user with the last 10 digits of the phonumber as an account number.
 
 ## Technologies Used
 
@@ -43,7 +43,11 @@ Ensure you have the following installed before setting up the project:
 
    ```bash
    git clone https://github.com/lekkss/onboarding_api.git
-2. cd onboarding_api
-    npm install
+
 ## Usage
-4. npm start
+2. Install necessary packages and Start the app:
+
+   ```bash
+   npm install
+   npm start
+   
