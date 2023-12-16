@@ -43,11 +43,13 @@ Ensure you have the following installed before setting up the project:
 
    ```bash
    git clone https://github.com/lekkss/onboarding_api.git
+   ```
 
 ## Usage
+
 2. Install necessary packages and Start the app:
 
    ```bash
    npm install
    npm start
-   
+   ```
