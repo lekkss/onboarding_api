@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { BadRequestError } from "../errors/index.js";
 import { generateToken } from "../services/token.js";
 import { db } from "../models/index.js";
-const { User } = db.models;
+const { User, Bank } = db.models;
 
 //Login auth
 const login = async (req, res) => {
@@ -180,7 +180,14 @@ export async function findUserByUuid(uuid) {
 }
 
 export async function findUserById(id) {
-  const user = await User.findOne({ where: { id: id } });
+  const user = await User.findOne({
+    where: { id: id },
+    include: [
+      {
+        model: Bank,
+      },
+    ],
+  });
   if (!user) throw new BadRequestError(`User does not exist`);
   return user;
 }

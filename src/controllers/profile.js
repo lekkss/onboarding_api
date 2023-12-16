@@ -1,6 +1,6 @@
 import BadRequestError from "../errors/bad-request.js";
 import { db } from "../models/index.js";
-const { User } = db.models;
+const { User, Bank } = db.models;
 
 const getProfile = async (req, res) => {
   const id = req.user.id;
@@ -13,7 +13,14 @@ const getProfile = async (req, res) => {
 };
 
 export async function findUserById(id) {
-  const user = await User.findByPk(id);
+  const user = await User.findOne({
+    where: { id: id },
+    include: [
+      {
+        model: Bank,
+      },
+    ],
+  });
   if (!user) throw new BadRequestError(`User does not found`);
   return user;
 }

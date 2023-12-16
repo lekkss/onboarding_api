@@ -2,7 +2,7 @@ import { db } from "../models/index.js";
 import { findUserById } from "./auth.js";
 import BadRequestError from "../errors/bad-request.js";
 import { findDocumentById } from "./document.js";
-const { User, Kyc } = db.models;
+const { Kyc, Bank } = db.models;
 
 const completeKyc = async (req, res) => {
   const userData = req.body;
@@ -43,18 +43,33 @@ const completeKyc = async (req, res) => {
     }
   }
 
-  if (!user.dataValues.has_kyc) {
+  const { has_kyc, type } = user.dataValues;
+
+  if (!has_kyc) {
     await Kyc.create({
       ...userData,
       created_at: Date.now(),
       has_kyc: true,
       user_id: id,
     });
-
+    const name = `${userData.firstname} ${userData.middlename} ${userData.lastname}`;
+    await Bank.create({
+      account_name: name,
+      account_number: "9030425060",
+      account_type: type,
+      bank_name: "VTNetworks",
+      currency: "NGN",
+      created_at: Date.now(),
+      user_id: id,
+    });
+    const f = userData.firstname.charAt(0);
+    const l = userData.lastname.charAt(0);
+    const url = `https://ui-avatars.com/api/?name=${f}+${l}&color=7F9CF5&background=EBF4FF`;
     Object.assign(user, userData, {
       updated_at: Date.now(),
       has_kyc: true,
-      name: `${userData.firstname} ${userData.middlename} ${userData.lastname}`,
+      name: name,
+      profile_photo_url: url,
     });
     await user.save();
 

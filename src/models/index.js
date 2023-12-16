@@ -3,6 +3,7 @@ import { dbConfig } from "../configs/db-config.js";
 import Sequelize from "sequelize";
 import User from "./user.js";
 import Kyc from "./kyc.js";
+import Bank from "./bank.js";
 import DocumentTypes from "./document-types.js";
 
 const { DATABASE, DIALECT, HOST, PASSWORD, USER } = dbConfig;
@@ -34,6 +35,7 @@ db.sequelize = sequelize;
 db.models = {
   User: User(sequelize, Sequelize.DataTypes),
   Kyc: Kyc(sequelize, Sequelize.DataTypes),
+  Bank: Bank(sequelize, Sequelize.DataTypes),
   DocumentTypes: DocumentTypes(sequelize, Sequelize.DataTypes),
 };
 
@@ -46,13 +48,13 @@ db.models.Kyc.belongsTo(db.models.User, {
   foreignKey: "user_id",
 });
 
-// db.models.User.hasMany(db.models.Client, {
-//   foreignKey: "user_id",
-// });
-// db.models.Client.belongsTo(db.models.User, {
-//   foreignKey: "user_id",
-//   onDelete: "CASCADE",
-// });
+db.models.User.hasMany(db.models.Bank, {
+  foreignKey: "user_id",
+});
+db.models.Bank.belongsTo(db.models.User, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+});
 
 // db.models.User.hasMany(db.models.Invoice, {
 //   foreignKey: "user_id",
