@@ -2,6 +2,7 @@ import { db } from "../models/index.js";
 import { findUserById } from "./auth.js";
 import BadRequestError from "../errors/bad-request.js";
 import { findDocumentById } from "./document.js";
+import { generateAccountNumber } from "../services/generateAccount.js";
 const { Kyc, Bank } = db.models;
 
 const completeKyc = async (req, res) => {
@@ -43,9 +44,10 @@ const completeKyc = async (req, res) => {
     }
   }
 
-  const { has_kyc, type } = user.dataValues;
+  const { has_kyc, type, phone } = user.dataValues;
+  const account = generateAccountNumber(phone);
 
-  if (!has_kyc) {
+  if (has_kyc) {
     await Kyc.create({
       ...userData,
       created_at: Date.now(),
@@ -55,7 +57,7 @@ const completeKyc = async (req, res) => {
     const name = `${userData.firstname} ${userData.middlename} ${userData.lastname}`;
     await Bank.create({
       account_name: name,
-      account_number: "9030425060",
+      account_number: account,
       account_type: type,
       bank_name: "VTNetworks",
       currency: "NGN",
