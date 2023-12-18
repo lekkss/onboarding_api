@@ -4,7 +4,7 @@ dotenv.config();
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { db } from "./src/models/index.js";
+import db from "./src/models/index.js";
 const app = express();
 
 // Error handlers

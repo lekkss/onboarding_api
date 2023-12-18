@@ -1,9 +1,10 @@
-import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
+import { StatusCodes } from "http-status-codes";
 import { BadRequestError } from "../errors/index.js";
 import { generateToken } from "../services/token.js";
-import { db } from "../models/index.js";
-const { User, Bank } = db.models;
+import { generateOtp } from "../utils/generateOtp.js";
+import db from "../models/index.js";
+const { user: User, bank: Bank } = db;
 
 //Login auth
 const login = async (req, res) => {
@@ -160,13 +161,6 @@ function omitPassword(user) {
 }
 
 //helper to find user with id
-
-//generate random otp
-function generateOtp() {
-  const min = 1000;
-  const max = 9999;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 async function findUserByPhone(phone) {
   const user = await User.findOne({ where: { phone: phone } });
   if (!user) throw new BadRequestError(`User does not exist`);

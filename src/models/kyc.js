@@ -67,14 +67,14 @@ export default (sequelize, DataTypes) => {
     {
       timestamps: false,
       freezeTableName: true,
-      indexes: [
-        {
-          unique: true,
-          fields: ["uuid"],
-        },
-      ],
     }
   );
+  Kyc.associate = (models) => {
+    Kyc.belongsTo(models.user, {
+      foreignKey: "user_id",
+      onDelete: "CASCADE",
+    });
+  };
 
   return Kyc;
 };

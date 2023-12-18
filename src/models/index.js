@@ -1,12 +1,17 @@
-import mysql from "mysql2";
-import { dbConfig } from "../configs/db-config.js";
+"use strict";
 import Sequelize from "sequelize";
-import User from "./user.js";
-import Kyc from "./kyc.js";
-import Bank from "./bank.js";
-import DocumentTypes from "./document-types.js";
+import mysql from "mysql2";
+import fs from "fs";
+import path from "path";
+import { dbConfig } from "../configs/db-config.js";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const basename = path.basename(__filename);
 const { DATABASE, DIALECT, HOST, PASSWORD, USER } = dbConfig;
+const db = {};
 
 //Create database if not exist
 const createDatabaseConnection = async () => {
@@ -28,51 +33,32 @@ const sequelize = new Sequelize(DATABASE, USER, PASSWORD, {
   host: HOST,
 });
 
+const modelPromises = fs
+  .readdirSync(__dirname)
+  .filter(
+    (file) =>
+      file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
+  )
+  .map((file) => import(`file://${path.join(__dirname, file)}`));
+
+// Wait for all model imports to resolve
+const modelModules = await Promise.all(modelPromises);
+
+// Iterate through the resolved modules and initialize models
+modelModules.forEach((module) => {
+  const model = module.default(sequelize, Sequelize.DataTypes);
+  db[model.name] = model;
+});
+
+// Associate models
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
 //initiate connection
-const db = {};
 db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-db.models = {
-  User: User(sequelize, Sequelize.DataTypes),
-  Kyc: Kyc(sequelize, Sequelize.DataTypes),
-  Bank: Bank(sequelize, Sequelize.DataTypes),
-  DocumentTypes: DocumentTypes(sequelize, Sequelize.DataTypes),
-};
-
-db.models.User.hasOne(db.models.Kyc, {
-  foreignKey: "user_id",
-  onDelete: "SET NULL",
-});
-db.models.Kyc.belongsTo(db.models.User, {
-  targetKey: "uuid",
-  foreignKey: "user_id",
-});
-
-db.models.User.hasMany(db.models.Bank, {
-  foreignKey: "user_id",
-});
-db.models.Bank.belongsTo(db.models.User, {
-  foreignKey: "user_id",
-  onDelete: "CASCADE",
-});
-
-// db.models.User.hasMany(db.models.Invoice, {
-//   foreignKey: "user_id",
-// });
-
-// db.models.Client.hasMany(db.models.Invoice, {
-//   foreignKey: "client_id",
-// });
-
-// db.models.Invoice.belongsTo(db.models.User, {
-//   foreignKey: "user_id",
-//   targetKey: "uuid",
-//   onDelete: "CASCADE",
-// });
-// db.models.Invoice.belongsTo(db.models.Client, {
-//   foreignKey: "client_id",
-//   targetKey: "uuid",
-//   onDelete: "CASCADE",
-// });
-
-export { db };
+export default db;

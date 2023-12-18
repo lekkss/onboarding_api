@@ -1,6 +1,6 @@
 import BadRequestError from "../errors/bad-request.js";
-import { db } from "../models/index.js";
-const { User, Bank } = db.models;
+import db from "../models/index.js";
+const { user: User, bank: Bank } = db;
 
 const getProfile = async (req, res) => {
   const id = req.user.id;

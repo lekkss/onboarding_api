@@ -110,5 +110,15 @@ export default (sequelize, DataTypes) => {
     }
   );
 
+  User.associate = (models) => {
+    User.hasMany(models.bank, {
+      foreignKey: "user_id",
+    });
+    User.hasOne(models.kyc, {
+      foreignKey: "user_id",
+      onDelete: "CASCADE",
+    });
+  };
+
   return User;
 };

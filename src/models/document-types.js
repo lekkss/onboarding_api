@@ -27,14 +27,6 @@ export default (sequelize, DataTypes) => {
     {
       timestamps: false,
       freezeTableName: true,
-      defaultScope: {
-        // exclude password by default
-        attributes: { exclude: ["password"] },
-      },
-      scopes: {
-        // include password with this scope
-        withPassword: { attributes: {} },
-      },
     }
   );
 

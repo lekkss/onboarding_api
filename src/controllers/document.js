@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
-import { db } from "../models/index.js";
 import BadRequestError from "../errors/bad-request.js";
-const { DocumentTypes } = db.models;
+import db from "../models/index.js";
+const { document_types: DocumentTypes } = db;
 
 const createDocument = async (req, res) => {
   if (req.body) {
