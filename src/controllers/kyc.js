@@ -2,7 +2,7 @@ import db from "../models/index.js";
 import { findUserById } from "./auth.js";
 import BadRequestError from "../errors/bad-request.js";
 import { findDocumentById } from "./document.js";
-import { generateAccountNumber } from "../services/generateAccount.js";
+import { generateAccountNumber } from "../utils/generateAccount.js";
 const { kyc: Kyc, bank: Bank } = db;
 
 const completeKyc = async (req, res) => {

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError } from "../errors/index.js";
-import { generateToken } from "../services/token.js";
+import { generateToken } from "../utils/token.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import db from "../models/index.js";
 const { user: User, bank: Bank } = db;
