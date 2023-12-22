@@ -1,7 +1,7 @@
 export const dbConfig = {
-  HOST: "localhost",
-  USER: "root",
-  PASSWORD: "password",
-  DATABASE: "vtmoney",
-  DIALECT: "mysql",
+  HOST: process.env.MYSQL_HOST,
+  USER: process.env.MYSQL_USER,
+  PASSWORD: process.env.MYSQL_PASSWORD,
+  DATABASE: process.env.MYSQL_DATABASE,
+  DIALECT: process.env.DIALECT,
 };
