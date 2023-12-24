@@ -9,9 +9,6 @@ const { user: User, bank: Bank } = db;
 //Login auth
 const login = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    throw new BadRequestError("Please provide email and password");
-  }
   if (!(await User.findOne({ where: { email: email } }))) {
     res.json({
       status: false,

@@ -10,27 +10,7 @@ const completeKyc = async (req, res) => {
   const id = req.user.id;
   const user = await findUserById(id);
   await findDocumentById(req.body.document_type_id);
-  const requiredFields = [
-    "firstname",
-    "middlename",
-    "lastname",
-    "dob",
-    "bvn",
-    "country",
-    "state",
-    "city",
-    "postal_code",
-    "address",
-    "document_type_id",
-    "document_number",
-  ];
-  const missingFields = requiredFields.filter((field) => !userData[field]);
 
-  if (missingFields.length > 0) {
-    throw new BadRequestError(
-      `Missing required fields: ${missingFields.join(", ")}`
-    );
-  }
   // Additional validation for business type
   if (user.dataValues.type === "business") {
     const businessFields = ["business_name", "registration_number", "tin"];
