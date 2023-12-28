@@ -1,7 +1,5 @@
 import express from "express";
-import validateRequest from "../middlewares/validate.js";
-import { changePassword, getProfile } from "../controllers/profile.js";
-import { passwordSchema } from "../validations/userValidation.js";
+import { getProfile } from "../controllers/profile.js";
 
 const router = express.Router();
 router.get("/", getProfile);
