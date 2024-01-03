@@ -19,11 +19,42 @@ const kycSchema = Joi.object({
   document_number: Joi.string().required(),
 });
 
+const initializeSchema = Joi.object({
+  phone: Joi.string().required(),
+  country_code: Joi.string().required(),
+});
+
 const verifySchema = Joi.object({
-  email: Joi.string().email().required(),
+  phone: Joi.string().required(),
+  country_code: Joi.string().required(),
   otp: Joi.string()
+    .required()
     .length(4)
     .pattern(/^[0-9]+$/),
 });
 
-export { loginSchema, kycSchema, verifySchema };
+const completeSignupSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  password_confirmation: Joi.string()
+    .valid(Joi.ref("password"))
+    .required()
+    .messages({
+      "any.only": "Password must match",
+    }),
+  type: Joi.string().valid("business", "personal").required(),
+});
+
+const resentOtpSchema = Joi.object({
+  phone: Joi.string().required(),
+  country_code: Joi.string().required(),
+});
+
+export {
+  loginSchema,
+  kycSchema,
+  verifySchema,
+  initializeSchema,
+  resentOtpSchema,
+  completeSignupSchema,
+};

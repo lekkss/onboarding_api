@@ -11,6 +11,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   if (!(await User.findOne({ where: { email: email } }))) {
     res.json({
+      statusCode: StatusCodes.ACCEPTED,
       status: false,
       message: `Email does not exist`,
     });
@@ -23,6 +24,7 @@ const login = async (req, res) => {
     }
     const token = generateToken(user.id, user.email);
     return res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
       status: true,
       message: "Login successful",
       data: {
@@ -48,12 +50,14 @@ const initializeSignup = async (req, res) => {
       } = user.dataValues;
       if (updated_at !== null) {
         res.status(StatusCodes.CREATED).json({
+          statusCode: StatusCodes.BAD_REQUEST,
           status: false,
           message: "Phone number verified, Proceed to complete signup",
           data: { step: "completed", uuid: uuid },
         });
       } else if (created_at !== null) {
         res.status(StatusCodes.CREATED).json({
+          statusCode: StatusCodes.BAD_REQUEST,
           status: false,
           message: "Signup Initialized, Proceed to verify phone number",
           data: {
@@ -67,6 +71,7 @@ const initializeSignup = async (req, res) => {
       const otp = generateOtp();
       await User.create({ ...req.body, otp: otp, created_at: Date.now() });
       res.status(StatusCodes.CREATED).json({
+        statusCode: StatusCodes.OK,
         status: true,
         data: { otp: otp },
         message: "Signup initialized successfully",
@@ -85,6 +90,7 @@ const verifySignup = async (req, res) => {
 
   if (updated_at !== null) {
     res.status(StatusCodes.CREATED).json({
+      statusCode: StatusCodes.BAD_REQUEST,
       status: false,
       message: "phone number already verified, proceed to signup",
       data: { step: "completed", uuid: uuid },
@@ -96,6 +102,7 @@ const verifySignup = async (req, res) => {
     });
     await user.save();
     res.status(StatusCodes.CREATED).json({
+      statusCode: StatusCodes.OK,
       status: true,
       message: "Signup verified successfully",
     });
@@ -123,6 +130,7 @@ const completeSignup = async (req, res) => {
     });
     await user.save();
     res.status(StatusCodes.CREATED).json({
+      statusCode: StatusCodes.OK,
       status: true,
       message: "Signup completed successfully",
       data: {
@@ -146,6 +154,7 @@ const resendOtp = async (req, res) => {
   });
   await user.save();
   res.status(StatusCodes.CREATED).json({
+    statusCode: StatusCodes.OK,
     status: true,
     data: { otp: otp },
     message: "OTP sent successfully",
