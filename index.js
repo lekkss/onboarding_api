@@ -27,10 +27,10 @@ app.use(express.json());
 
 //Routes
 app.use("/api/auth", authRouter);
-app.use("/api/profile", auth, profileRouter);
-app.use("/api/kyc", auth, kycRouter);
-app.use("/api/document-types", documentRouter);
-app.use("/api/account", auth, accountRouter);
+app.use("/api/profile", auth("user"), profileRouter);
+app.use("/api/kyc", auth("user"), kycRouter);
+app.use("/api/document-types", auth("admin"), documentRouter);
+app.use("/api/account", auth("user"), accountRouter);
 
 // initializing express middlewares
 app.use(notFound);

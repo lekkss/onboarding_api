@@ -22,13 +22,13 @@ const login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new BadRequestError("Invalid password provided");
     }
-    const token = generateToken(user.id, user.email);
+    const token = generateToken(user.id, user.email, user.role);
     return res.status(StatusCodes.OK).json({
       statusCode: StatusCodes.OK,
       status: true,
       message: "Login successful",
       data: {
-        role: "user",
+        role: user.role,
         user: { ...omitPassword(user.get()) },
         token: token,
       },
@@ -69,7 +69,12 @@ const initializeSignup = async (req, res) => {
       }
     } else {
       const otp = generateOtp();
-      await User.create({ ...req.body, otp: otp, created_at: Date.now() });
+      await User.create({
+        ...req.body,
+        role: "admin",
+        otp: otp,
+        created_at: Date.now(),
+      });
       res.status(StatusCodes.CREATED).json({
         statusCode: StatusCodes.OK,
         status: true,
@@ -96,7 +101,7 @@ const verifySignup = async (req, res) => {
       data: { step: "completed", uuid: uuid },
     });
   }
-  if (otp === userOtp) {
+  if (otp == userOtp) {
     Object.assign(user, {
       updated_at: Date.now(),
     });
@@ -105,6 +110,7 @@ const verifySignup = async (req, res) => {
       statusCode: StatusCodes.OK,
       status: true,
       message: "Signup verified successfully",
+      data: { uuid: uuid },
     });
   } else {
     throw new BadRequestError("Invalid otp entered");

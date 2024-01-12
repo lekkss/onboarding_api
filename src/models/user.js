@@ -82,6 +82,10 @@ export default (sequelize, DataTypes) => {
       profile_photo_url: {
         type: DataTypes.STRING,
       },
+      role: {
+        type: DataTypes.ENUM("user", "admin"),
+        defaultValue: "user",
+      },
       has_kyc: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
